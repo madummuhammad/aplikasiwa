@@ -106,6 +106,7 @@ export default {
         const openModalDetail = (item) => {
             orderDetailModalShow.value = true;
             orderDetail.value = item
+            console.log('orderDetail',orderDetail.value)
         }
         let orders = ref(props.orders);
         orders.value.forEach((item, index) => {
@@ -724,12 +725,12 @@ export default {
                                 <table class="table table-nowrap align-middle" id="orderTable">
                                     <thead class="text-muted table-light">
                                         <tr class="text-uppercase">
-                                            <th scope="col" style="width: 25px">
+                                            <!-- <th scope="col" style="width: 25px">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="checkAll"
                                                         value="option" />
                                                 </div>
-                                            </th>
+                                            </th> -->
                                             <th data-sort="id" @click="onSort('orderId')">Order ID</th>
                                             <th data-sort="customer_name" @click="onSort('customer')">Nama
                                             </th>
@@ -747,12 +748,12 @@ export default {
                                     </thead>
                                     <tbody class="list form-check-all" v-for="(data, index) of resultQuery" :key="index">
                                         <tr v-if="statuscategory == 'All' || statuscategory == data.status">
-                                            <th scope="row">
+                                            <!-- <th scope="row">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="chk_child"
                                                         value="option1" />
                                                 </div>
-                                            </th>
+                                            </th> -->
                                             <td class="id">
                                                 <div class="fw-medium link-primary cursor-pointer"
                                                     @click="openModalDetail(data)">#{{
@@ -924,8 +925,14 @@ export default {
                                 <table>
                                     <tr v-for="(item, index) in orderDetail.fields">
                                         <td class="text-uppercase"><span class="fw-bold">{{ item.label }} </span> </td>
-                                        <td>: <span class="text-uppercase">{{
+                                        <td v-if="item.field == 'Input' && item.name!=='city_or_subdistrict'">: <span class="text-uppercase">{{
                                             item.value }}</span></td>
+                                        <td v-if="item.field == 'Select' && item.name=='province'">: <span class="text-uppercase">{{
+                                            item.value.province }}</span></td>
+                                        <td v-if="item.field == 'Select' && item.name=='city'">: <span class="text-uppercase">{{
+                                            item.value.city_name }}</span></td>
+                                        <td v-if="item.field == 'Select' && item.name=='subdistrict'">: <span class="text-uppercase">{{
+                                            item.value.subdistrict_name }}</span></td>
                                     </tr>
                                 </table>
                             </div>

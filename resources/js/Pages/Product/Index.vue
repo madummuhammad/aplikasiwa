@@ -401,8 +401,8 @@ export default {
 
                                                         <div v-if="item.stock_status == 'tersedia'">
                                                             <!-- Manajemen Stock Active -->
-                                                            <div v-if="item.manajemen_stock == true">
-                                                                {{ sumStock(item.item_product) }}
+                                                            <div v-if="item.manajemen_stock == true" class="fw-bold text-success">
+                                                                {{ sumStock(item.item_product) }} Stok tersedia
                                                             </div>
                                                             <!-- Manajemen Stock Nonactive-->
                                                             <div v-if="item.manajemen_stock == false"> <i
@@ -412,10 +412,10 @@ export default {
                                                             v-if="item.stock_status == 'habis' && item.manajemen_stock == false">
                                                             <div class="fw-bold text-danger">Stock Habis</div>
                                                         </div>
-                                                        <div v-if="item.manajemen_stock == true">
+                                                        <!-- <div v-if="item.manajemen_stock == true">
                                                             <div class="fw-bold text-danger">{{ sumStock(item.item_product)
                                                             }}</div>
-                                                        </div>
+                                                        </div> -->
                                                     </td>
                                                     <!-- <td data-column-id="stock" class="gridjs-td">
                                                         asdf

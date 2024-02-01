@@ -45,6 +45,33 @@ export default {
         const changePaymentMethod = (paymentPage, page) => {
             followUpText.value.payment_page = paymentPage
         }
+
+        const deleteProduct=(event)=>{
+            Swal.fire({
+                title: "Anda yaakin akan menghapus produk ini?",
+                text: "Produk tidak akan di recovery!",
+                icon: "warning",
+                showCancelButton: true,
+                cancelButtonColor: "#f46a6a",
+                confirmButtonColor: "#34c38f",
+                confirmButtonText: "Ya, Hapus!",
+            }).then((result) => {
+                if (result.value) {
+                    const deleteEndpoint = '/api/products/destroy/' + productData.value.id;
+
+                    axios.delete(deleteEndpoint)
+                        .then(response => {
+                            console.log(response.data);
+                            Swal.fire("Deleted!", "Your file has been deleted.", "success");
+
+                            window.location.assign('/product');
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            });
+        }
         // End Follow Up
         return {
             global,
@@ -57,7 +84,8 @@ export default {
             textFollowUpStatus,
             followUpText,
             changeFollowUp,
-            changePaymentMethod
+            changePaymentMethod,
+            deleteProduct
         }
     },
     data() {
@@ -143,7 +171,7 @@ export default {
                     class="ms-3 btn border bg-white text-gray d-flex align-items-center">View
                     Checkout Page <i class="fs-5 ms-2 bx bx-navigation"></i>
                 </a>
-                <button class="ms-3 btn border bg-white text-gray d-flex align-items-center"
+                <button class="ms-3 btn border bg-white text-gray d-flex align-items-center" @click="deleteProduct"
                     v-if="user.permission.product.delete">Hapus <i class="fs-5 ms-2 bx bx-trash"></i>
                 </button>
             </div>

@@ -9,59 +9,18 @@ import { ref, watch } from "vue";
 import { Global } from '../../global'
 export default {
   setup() {
-    let dashboardData = ref({})
-    const global = Global();
-    var statisticLoading = ref(true)
-    const getStatistic = async () => {
-      try {
-        const response = await axios.get('/api/dashboard/statistic');
-        const data = response.data;
-        dashboardData.value = data.data;
-        console.log('statistic', data.data)
-        statisticLoading.value = false
-        console.log(statisticLoading.value)
-      } catch (error) {
-        console.error('error', error);
-      }
-
-    }
-
-    onMounted(() => {
-      getStatistic();
-    })
-
-    return {
-      getStatistic,
-      dashboardData,
-      statisticLoading,
-      global
-    }
-  },
-  components: {
-    CountTo,
-  },
-  data() {
-    return {
-      series: [{
+    let series=ref([{
         name: "Orders",
         type: "area",
-        data: [34, 65, 46, 68, 49, 61, 42, 44, 78, 52, 63, 67],
+        data: [],
       },
       {
         name: "Earnings",
         type: "bar",
-        data: [
-          89.25, 98.58, 68.74, 108.87, 77.54, 84.03, 51.24, 28.57, 92.57,
-          42.36, 88.51, 36.57,
-        ],
-      },
-      {
-        name: "Refunds",
-        type: "line",
-        data: [8, 12, 7, 17, 21, 11, 5, 9, 7, 29, 12, 35],
-      },
-      ],
-      chartOptions: {
+        data: [],
+      }
+      ])
+      let chartOptions=ref({
         chart: {
           height: 370,
           type: "line",
@@ -175,15 +134,56 @@ export default {
           },
           ],
         },
-      },
-    };
+      })
+    let dashboardData = ref({})
+    const global = Global();
+    var statisticLoading = ref(true)
+    let orders=ref([]);
+    let earnings=ref([]);
+    const getStatistic = async () => {
+      try {
+        const response = await axios.get('/api/dashboard/statistic');
+        const data = response.data;
+        dashboardData.value = data.data;
+        series.value[0].data=data.data.diagram.orders
+        series.value[1].data=data.data.diagram.earnings
+        console.log('statistic', data.data)
+        console.log('orders', orders.value)
+        statisticLoading.value = false
+        console.log(statisticLoading.value)
+      } catch (error) {
+        console.error('error', error);
+      }
+
+    }
+
+    onMounted(() => {
+      getStatistic();
+    })
+
+    return {
+      getStatistic,
+      dashboardData,
+      statisticLoading,
+      orders,
+      earnings,
+      series,
+      chartOptions,
+      global
+    }
+  },
+  components: {
+    CountTo,
+  },
+  data() {
+    console.log('this',this.orders)
   },
 };
 </script>
 
 <template>
   <BCard no-body>
-    <BCardHeader class="border-0 align-items-center d-flex">
+    <!-- <BCardHeader class="border-0 align-items-center d-flex">
       <BCardTitle class="mb-0 flex-grow-1">Transaksi</BCardTitle>
       <div class="hstack gap-1">
         <BButton type="button" variant="soft-secondary" size="sm">
@@ -199,7 +199,7 @@ export default {
           1Y
         </BButton>
       </div>
-    </BCardHeader>
+    </BCardHeader> -->
 
     <BCardHeader class="p-0 border-0 bg-light-subtle">
       <BRow class="g-0 text-center" v-if="statisticLoading == false">
@@ -222,7 +222,7 @@ export default {
         <BCol cols="6" sm="3">
           <div class="p-3 border border-dashed border-start-0">
             <h5 class="mb-1">
-              {{ global.formatNumber(dashboardData.statistic.rasio) }} %
+              {{ dashboardData.statistic.rasio}} %
             </h5>
             <p class="text-muted mb-0">Paid Ratio</p>
           </div>

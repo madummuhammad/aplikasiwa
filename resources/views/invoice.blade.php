@@ -74,7 +74,6 @@ function formatDate($timestamp) {
 
     .fields tr td{
         white-space: nowrap;
-        width:;
     }
 
     .items{
@@ -133,9 +132,26 @@ function formatDate($timestamp) {
             <td class="fw-bold">
                 {{$value['label']}}
             </td>
+            @if($value['field']=='Input' && $value['name']!=='city_or_subdistrict')
             <td>
                 : {{$value['value']}}
             </td>
+            @endif
+            @if($value['field']=='Select' && $value['name']=='province')
+            <td>
+                : {{$value['value']['province']}}
+            </td>
+            @endif
+            @if($value['field']=='Select' && $value['name']=='city')
+            <td>
+                : {{$value['value']['city_name']}}
+            </td>
+            @endif
+            @if($value['field']=='Select' && $value['name']=='subdistrict')
+            <td>
+                : {{$value['value']['subdistrict_name']}}
+            </td>
+            @endif
         </tr>
         @endforeach
     </table>

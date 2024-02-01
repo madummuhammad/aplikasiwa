@@ -1616,6 +1616,7 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
+                                                {{ product.bank_transfer.description }}
                                             </div>
                                             <div class="p-4 border" v-if="product.cod.status == true">
                                                 <div class="form-check">
@@ -1624,6 +1625,7 @@ export default {
                                                         COD
                                                     </label>
                                                 </div>
+                                                {{ product.cod.description }}
                                             </div>
                                             <div class="p-4 border" v-if="product.epayment.status == true">
                                                 <div class="form-check">
@@ -1896,6 +1898,7 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
+                                                {{ product.bank_transfer.description }}
                                             </div>
                                             <div class="p-4 border" v-if="product.cod.status == true">
                                                 <div class="form-check">
@@ -1904,6 +1907,7 @@ export default {
                                                         COD
                                                     </label>
                                                 </div>
+                                                {{ product.cod.description }}
                                             </div>
                                             <div class="p-4 border" v-if="product.epayment.status == true">
                                                 <div class="form-check">
@@ -2091,6 +2095,7 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
+                                                {{ product.bank_transfer.description }}
                                             </div>
                                             <div class="p-4 border" v-if="product.cod.status == true">
                                                 <div class="form-check">
@@ -2099,6 +2104,7 @@ export default {
                                                         COD
                                                     </label>
                                                 </div>
+                                                {{ product.cod.description }}
                                             </div>
                                             <div class="p-4 border" v-if="product.epayment.status == true">
                                                 <div class="form-check">

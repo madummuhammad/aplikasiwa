@@ -31,25 +31,13 @@ export default {
         };
     },
     watch:{
-        'productData.url': async function(newVal){
-            clearTimeout(this.debounceTimer);
-            this.debounceTimer = setTimeout(async () => {
-                console.log(newVal);
-                const response = await axios.post('/api/products/check_url', { url: newVal});
-
-                let data=response.data;
-                console.log(response.data);
-                console.log(this.productDataError)
-                if(data.status=='error'){
-                    this.productDataError.url='URL Sudah Dipakai'
-                }
-            }, 500);
+        'productData.url': function(newVal){
+            this.handleUrlChange(newVal);
         }
     },
     setup(props) {
         const global = Global();
         const submit = () => {
-
             const postData = {
                 productData: { ...productData.value, size: size.value },
                 checkoutData: { ...checkoutData.value },
@@ -132,10 +120,12 @@ export default {
                 otomatic: [
                     {
                         name: 'JNE',
+                        code:'jne',
                         status: true,
                     },
                     {
                         name: 'J&T',
+                        code:'jnt',
                         status: true
                     }
                 ],
@@ -166,6 +156,25 @@ export default {
         });
 
         let productDataError = ref([]);
+
+        let debounceTimer;
+        const handleUrlChange = async (newVal) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(async () => {
+                console.log('newVal',newVal);
+                const response = await axios.post('/api/products/check_url', { url: newVal});
+
+                let data=response.data;
+                console.log(response.data);
+                if(data.status=='error'){
+                    productDataError.value.url='URL Sudah Dipakai'
+                } else {
+                    productDataError.value.url=null;
+                }
+                    console.log('productDataErrors',productDataError.value)
+            }, 500);
+        };
+
 
         const urlSlug = () => {
             if (productData.value.url === '') {
@@ -591,14 +600,16 @@ export default {
             productDataError.value.name = productData.value.name === '' ? 'Nama Produk tidak boleh kosong' : null;
 
             // Cek url kosong
-            productDataError.value.url = productData.value.url === '' ? 'URL tidak boleh kosong' : null;
+            if(productData.value.url==null || productData.value.url==""){
+                productDataError.value.url = 'URL tidak boleh kosong';
+            }
 
             // Cek product_code kosong
             productDataError.value.product_code = productData.value.product_code === '' ? 'Kode tidak boleh kosong' : null;
 
             // Cek apakah masih ada error
             const hasError = Object.values(productDataError.value).some(error => error !== null);
-
+            console.log('pageMethod',productDataError.value)
             if (hasError) {
                 // Jika masih ada error, tidak lanjut ke halaman berikutnya
                 console.log(productDataError.value);
@@ -1168,6 +1179,7 @@ export default {
             selectBank,
             deleteAccountBank,
             productDataError,
+            handleUrlChange,
 
             evalExpression,
             addBankAccount,
@@ -1263,14 +1275,14 @@ export default {
                             <div class="invalid-feedback" v-if="!productData.name">{{ productDataError.name }}</div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" for="product-price-input">URL Halaman Checkout</label>
+                            <label class="form-label" for="product-price-input">URL Halaman Checkout {{}}</label>
                             <div class="input-group has-validation mb-3">
                                 <span class="input-group-text" id="product-price-addon">/</span>
                                 <input type="text" class="form-control"
-                                    :class="{ 'is-invalid': productDataError.url && !productData.url }"
+                                    :class="{ 'is-invalid': productDataError.url }"
                                     v-model="productData.url" id="product-price-input" aria-label="Price"
                                     aria-describedby="product-price-addon" required="">
-                                <div class="invalid-feedback" v-if="!productData.url">{{ productDataError.url }}</div>
+                                <div class="invalid-feedback">{{ productDataError.url }}</div>
                             </div>
                             <div>URL Checkout Page: https://{{ store.store.username }}.aplikasiwa.com/{{ productData.url }}
                             </div>
@@ -1886,7 +1898,7 @@ export default {
                     <BCardBody>
                         <div class="row">
                             <div class="col-lg-12">
-                                <div class="mb-3">
+                                <div class="mb-3" v-if="productData.many_variation_status==false">
                                     <label class="form-label" for="product-price-input">Berat (gr)</label>
                                     <div class="has-validation mb-3">
                                         <input type="text" class="form-control" v-model="productData.shipping.weight"
@@ -2867,6 +2879,7 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
+                                                {{productData.bank_transfer.description}}
                                             </div>
                                             <div class="p-4 border" v-if="productData.cod.status == true">
                                                 <div class="form-check">
@@ -2875,6 +2888,7 @@ export default {
                                                         COD
                                                     </label>
                                                 </div>
+                                                {{productData.cod.description}}
                                             </div>
                                             <div class="p-4 border" v-if="productData.epayment.status == true">
                                                 <div class="form-check">
@@ -3146,6 +3160,7 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
+                                                {{productData.bank_transfer.description}}
                                             </div>
                                             <div class="p-4 border" v-if="productData.cod.status == true">
                                                 <div class="form-check">
@@ -3154,6 +3169,7 @@ export default {
                                                         COD
                                                     </label>
                                                 </div>
+                                                {{productData.cod.description}}
                                             </div>
                                             <div class="p-4 border" v-if="productData.epayment.status == true">
                                                 <div class="form-check">
@@ -3340,6 +3356,7 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
+                                                {{productData.bank_transfer.description}}
                                             </div>
                                             <div class="p-4 border" v-if="productData.cod.status == true">
                                                 <div class="form-check">
@@ -3348,6 +3365,7 @@ export default {
                                                         COD
                                                     </label>
                                                 </div>
+                                                {{productData.cod.description}}
                                             </div>
                                             <div class="p-4 border" v-if="productData.epayment.status == true">
                                                 <div class="form-check">

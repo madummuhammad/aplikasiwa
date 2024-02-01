@@ -66,7 +66,15 @@ export default {
             bump_status: false,
             item_product: {},
             total_price: 0,
-            product: productData.value
+            product: productData.value,
+            shipping:{
+                shipping_cost:0,
+                kurir:null,
+                weight:null,
+                origin:null,
+                shipping_type:null,
+                destination:null
+            }
         }));
 
 
@@ -134,6 +142,18 @@ export default {
                 });
         }
 
+        const getCityAuto=async()=>{
+            console.log('asdf')
+            axios.get('/api/rajaongkir/autocomplete')
+                .then(response => {
+                    let data = response.data;
+                    console.log('Data berhasil dikirim ke backend:', data);
+                })
+                .catch(error => {
+                    console.error('Error saat mengirim data ke backend:', error);
+                });
+        }
+
         const selectedCity = ref("");
 
         watch(() => selectedCity, (newFields, oldFields) => {
@@ -172,30 +192,84 @@ export default {
                 });
         }
 
+        let shippingOption=ref([]);
+        const getEkspedisi = () => {
+            console.log(form.value.shipping)
+            axios.get('/api/rajaongkir/expedisi?expedisi='+form.value.shipping.kurir+'&subdistrict='+form.value.shipping.destination.subdistrict_id+'&berat='+form.value.shipping.weight)
+                .then(response => {
+                    let data = response.data;
+                    console.log('Data berhasil dikirim ke backend:', data);
+
+                    data.rajaongkir.results[0].costs.forEach((item,index)=>{
+                        shippingOption.value[index]={
+                            label:item.service+' | '+item.cost[0].value,
+                            value:item
+                        }
+                    })
+
+                    console.log(shippingOption.value)
+                })
+                .catch(error => {
+                    console.error('Error saat mengirim data ke backend:', error);
+                });
+        }
+
         const selectedSubdistrict = ref("");
 
+        const kurirOption=ref([]);
+
         watch(() => selectedSubdistrict, (newFields, oldFields) => {
-            console.log('watch form', newFields.value);
+            console.log('watch selectedSubdistrict', newFields.value);
             form.value.fields.forEach((item, index) => {
                 if (item.name == 'subdistrict') {
                     item.value = newFields.value;
                 }
             })
+
+            let kurirTrue=[];
+            if(productData.value.shipping.otomatic_price_shipping==true && productData.value.shipping.shipping_type=='otomatic'){
+                kurirTrue=productData.value.shipping.otomatic.filter(item=>item.status===true);
+                console.log(kurirTrue)
+
+                kurirTrue.forEach((item,index)=>{
+                    kurirOption.value[index]={
+                        label:item.name,
+                        value:item.code
+                    }
+                })
+            }
             // getCity();
+            form.value.shipping.destination=newFields
+            console.log(kurirOption.value)
+        }, { deep: true });
+
+        watch(() => form.value.shipping.kurir, (newFields, oldFields) => {
+            if(newFields!==null){
+                getEkspedisi()
+            }
+            console.log('watch form', newFields);
+        }, { deep: true });
+        
+
+        watch(() => form.value.shipping.shipping_type, (newFields, oldFields) => {
+            if(newFields!==null){
+                form.value.shipping.shipping_cost=newFields.cost[0].value
+                console.log('watch shipping_type', newFields);
+            }
         }, { deep: true });
 
         onMounted(() => {
             getProvince();
+            if (productData.value.price_type == 'simple') {
+                form.value.item_product = productData.value.item_product[0];
+                if (productData.price_sale_status == true) {
+                    form.value.total_price = parseInt(productData.value.normal_price);
+                } else {
+                    form.value.total_price = parseInt(productData.value.price_sale);
+                }
+            }
         })
 
-        if (productData.value.price_type == 'simple') {
-            form.value.item_product = productData.value.item_product[0];
-            if (productData.price_sale_status == true) {
-                form.value.total_price = parseInt(productData.value.normal_price);
-            } else {
-                form.value.total_price = parseInt(productData.value.price_sale);
-            }
-        }
 
         watch(() => productData.value.item_product, (newFields, oldFields) => {
             form.value.item_product = [];
@@ -215,14 +289,41 @@ export default {
 
             }
 
+
+
             console.log('watch product data', form.value.item_product);
         }, { deep: true });
 
         watch(() => form.value.item_product, (newFields, oldFields) => {
             if (productData.value.many_buy_status == false) {
                 form.value.total_price = parseInt(form.value.item_product.normal_price)
+                if(productData.value.price_type=='variable'){
+                    form.value.shipping.weight=parseInt(newFields.weight)
+                } else {
+                    form.value.shipping.weight=parseInt(productData.value.shipping.weight)
+                }
+            } else {
+                var weight=0;
+                newFields.forEach((item,index) => {
+                    weight=weight+(parseInt(item.weight)*parseInt(item.qty))
+                });
+                form.value.shipping.weight=weight;
             }
-            console.log('watch form', form.value.item_product);
+
+            if(productData.value.shipping.shipping_type=='otomatic'){
+                form.value.shipping.kurir=null
+                form.value.shipping.shipping_type=null
+                form.value.shipping.shipping_cost=0
+            }
+
+            if(productData.value.shipping.shipping_type=='flat'){
+                form.value.shipping.shipping_cost=parseInt(productData.value.shipping.flat.price);
+            }
+
+            console.log(productData.value.shipping.flat.price)
+            console.log('form',form.value.shipping)
+            console.log('watch item_product', newFields);
+            console.log('watch weight', form.value.shipping.weight);
         }, { deep: true });
 
         watch(() => form.value.bump_status, (newFields, oldFields) => {
@@ -265,9 +366,14 @@ export default {
             // Raja Ongkir
             getCity,
             getKecamatan,
+            getCityAuto,
             selectedProvince,
             selectedCity,
-            selectedSubdistrict
+            selectedSubdistrict,
+
+            kurirOption,
+            getEkspedisi,
+            shippingOption
         };
     },
     components: {
@@ -402,7 +508,10 @@ export default {
                                         </div>
                                         <div class="mb-3" v-for="(  item, index  ) in   form.fields  " :key="index">
                                             <div v-if="item.show == true">
-                                                <input v-if="item.field == 'Input'" v-model="item.value"
+                                                <input v-if="item.field == 'Input' && item.name!=='city_or_subdistrict'" v-model="item.value"
+                                                    :type="item.inputType" class="form-control"
+                                                    :placeholder="item.placeholder" :required="item.required" />
+                                                <input v-if="item.field == 'Input' && item.name=='city_or_subdistrict'" v-model="item.value" @change="getCityAuto"
                                                     :type="item.inputType" class="form-control"
                                                     :placeholder="item.placeholder" :required="item.required" />
                                                 <Multiselect v-if="item.field == 'Select' && item.name == 'province'"
@@ -428,6 +537,25 @@ export default {
                                                     :required="item.required" />
                                             </div>
                                         </div>
+                                        <template v-if="product.shipping.otomatic_price_shipping==true && product.shipping.shipping_type=='otomatic'">
+                                            <div class="mb-3">
+                                                <p class="fw-bold">Pengiriman:</p>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <div class="col-12 col-lg-6">
+                                                    <Multiselect v-model="form.shipping.kurir"
+                                                    class="form-select" 
+                                                    :close-on-select="true" placeholder="Pilih Kurir"
+                                                    :searchable="true" :create-option="false" :options="kurirOption"/>
+                                                </div>
+                                                <div class="col-12 col-lg-6">
+                                                    <Multiselect v-model="form.shipping.shipping_type"
+                                                    class="form-select" 
+                                                    :close-on-select="true" placeholder="Pilih Kurir"
+                                                    :searchable="true" :create-option="false" :options="shippingOption"/>
+                                                </div>
+                                            </div>
+                                        </template>
                                         <div class="mb-3">
                                             <p class="fw-bold">{{ checkoutData.sectionTitle.payment_method }}</p>
 
@@ -439,16 +567,18 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
+                                                {{ product.bank_transfer.description }}
                                             </div>
-
+                                            
                                             <div class="p-4 border" v-if="product.cod.status == true">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" value="cod"
-                                                        v-model="form.payment_method" id="codCheckbox">
+                                                    v-model="form.payment_method" id="codCheckbox">
                                                     <label class="form-check-label" for="codCheckbox">
                                                         COD
                                                     </label>
                                                 </div>
+                                                {{ product.cod.description }}
                                             </div>
 
                                             <div class="p-4 border" v-if="product.epayment.status == true">
@@ -524,6 +654,40 @@ export default {
                                                     <td class="text-end" v-if="product.price_type == 'variable'">
                                                         <p class="fs-12">
                                                             {{ global.formatNumber(form.total_price) }}
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                                <tr v-if="product.shipping.otomatic_price_shipping==true && product.shipping.shipping_type=='otomatic'|| product.shipping.shipping_type=='flat'">
+                                                    <td style="vertical-align: top;">
+                                                        <p class="fs-12">
+                                                            Biaya Pengiriman
+                                                        </p>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <p class="fs-12">{{ global.formatNumber(form.shipping.shipping_cost) }}</p>
+                                                    </td>
+                                                </tr>
+                                                <tr v-if="product.shipping.otomatic_price_shipping==true && product.shipping.shipping_type=='otomatic' || product.shipping.shipping_type=='flat'">
+                                                    <td style="vertical-align: top;">
+                                                        <p class="fs-12 fw-bold">
+                                                            TOTAL
+                                                        </p>
+                                                    </td>
+                                                    <td class="text-end" v-if="product.price_type == 'simple'">
+                                                        <p v-if="product.price_sale_status == true"
+                                                            class="fs-12 fw-bold text-decoration-line-through text-danger p-0 m-0">
+                                                            {{ global.formatNumber(product.normal_price+form.shipping.shipping_cost) }}
+                                                        </p>
+                                                        <p class="fs-12 fw-bold" v-if="product.price_sale_status == true">
+                                                            {{ global.formatNumber(form.total_price+form.shipping.shipping_cost) }}
+                                                        </p>
+                                                        <p class="fs-12 fw-bold" v-if="product.price_sale_status == false">
+                                                            {{ global.formatNumber(form.total_price+form.shipping.shipping_cost) }}
+                                                        </p>
+                                                    </td>
+                                                    <td class="text-end" v-if="product.price_type == 'variable'">
+                                                        <p class="fs-12 fw-bold">
+                                                            {{ global.formatNumber(form.total_price+form.shipping.shipping_cost) }}
                                                         </p>
                                                     </td>
                                                 </tr>
@@ -760,16 +924,18 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
+                                                {{ product.bank_transfer.description }}
                                             </div>
-
+                                            
                                             <div class="p-4 border" v-if="product.cod.status == true">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" value="cod"
-                                                        v-model="form.payment_method" id="codCheckbox">
+                                                    v-model="form.payment_method" id="codCheckbox">
                                                     <label class="form-check-label" for="codCheckbox">
                                                         COD
                                                     </label>
                                                 </div>
+                                                {{ product.cod.description }}
                                             </div>
 
                                             <div class="p-4 border" v-if="product.epayment.status == true">
@@ -985,16 +1151,18 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
+                                                {{ product.bank_transfer.description }}
                                             </div>
-
+                                            
                                             <div class="p-4 border" v-if="product.cod.status == true">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" value="cod"
-                                                        v-model="form.payment_method" id="codCheckbox">
+                                                    v-model="form.payment_method" id="codCheckbox">
                                                     <label class="form-check-label" for="codCheckbox">
                                                         COD
                                                     </label>
                                                 </div>
+                                                {{ product.cod.description }}
                                             </div>
 
                                             <div class="p-4 border" v-if="product.epayment.status == true">

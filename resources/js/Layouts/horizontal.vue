@@ -97,6 +97,18 @@ export default {
                 Orders
                 </Link>
               </li>
+              <li class="nav-item">
+                <Link class="nav-link menu-link" :href="route('inventory')">
+                <i class="ri-apps-2-line"></i>
+                Inventory
+                </Link>
+              </li>
+              <li class="nav-item">
+                <Link class="nav-link menu-link" :href="route('payment')">
+                <i class="ri-apps-2-line"></i>
+                Pembayaran
+                </Link>
+              </li>
               <!-- end Dashboard Menu -->
               <!-- <li class="nav-item">
                 <a class="nav-link menu-link" href="#sidebarApps" data-bs-toggle="collapse" role="button"

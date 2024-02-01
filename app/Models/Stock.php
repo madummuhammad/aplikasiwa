@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class ItemProduct extends Model
+class Stock extends Model
 {
     use HasFactory;
 
@@ -22,13 +22,8 @@ class ItemProduct extends Model
         });
     }
 
-    function product()
+    function item_product()
     {
-        return $this->belongsTo('App\Models\Product','product_id','id');
-    }
-
-    function variation()
-    {
-        return $this->belongsTo('App\Models\Variation','variation_id','id');
+        return $this->belongsTo('App\Models\ItemProduct','item_product_id','id');
     }
 }

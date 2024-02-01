@@ -560,6 +560,13 @@ export default {
                 });
         };
 
+        // Tipe Pengiriman
+
+        const shippingMethod = (type) => {
+            form.value.shipping.shipping_type = type;
+            console.log('form.shipping.shipping_type', form.value.shipping.shipping_type)
+        }
+
 
         return {
 
@@ -609,7 +616,10 @@ export default {
             tempProductImage,
 
             // Price Type
-            changePriceType
+            changePriceType,
+
+            // Pengiriman
+            shippingMethod
         };
     },
     components: {
@@ -1161,7 +1171,7 @@ export default {
 
                                             <div class="col-lg-12"
                                                 v-if="form.many_variation_status == false, form.price_type == 'simple'">
-                                                <input v-model="form.stock" type="text" class="form-control"
+                                                <input v-model="form.item_product[0].stock" type="text" class="form-control"
                                                     id="product-price-input" aria-label="Price"
                                                     aria-describedby="product-price-addon" required="">
                                             </div>
@@ -1261,7 +1271,7 @@ export default {
                     <BCardBody>
                         <div class="row">
                             <div class="col-lg-12">
-                                <div class="mb-3">
+                                <div class="mb-3" v-if="form.many_variation_status==false">
                                     <label class="form-label" for="product-price-input">Berat (gr)</label>
                                     <div class="has-validation mb-3">
                                         <input type="text" class="form-control" v-model="form.shipping.weight"
@@ -1673,6 +1683,7 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
+                                               {{form.bank_transfer.description}}
                                             </div>
                                             <div class="p-4 border" v-if="form.cod.status == true">
                                                 <div class="form-check">
@@ -1681,6 +1692,7 @@ export default {
                                                         COD
                                                     </label>
                                                 </div>
+                                               {{form.cod.description}}
                                             </div>
                                             <div class="p-4 border" v-if="form.epayment.status == true">
                                                 <div class="form-check">
@@ -1689,6 +1701,7 @@ export default {
                                                         E - Payment
                                                     </label>
                                                 </div>
+                                               {{form.bank_transfer.epayment}}
                                             </div>
                                         </div>
                                         <div class="border border-dashed border-danger border-2 p-2 mb-3"
@@ -1951,6 +1964,7 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
+                                               {{form.bank_transfer.description}}
                                             </div>
                                             <div class="p-4 border" v-if="form.cod.status == true">
                                                 <div class="form-check">
@@ -1959,6 +1973,7 @@ export default {
                                                         COD
                                                     </label>
                                                 </div>
+                                               {{form.cod.description}}
                                             </div>
                                             <div class="p-4 border" v-if="form.epayment.status == true">
                                                 <div class="form-check">
@@ -1967,6 +1982,7 @@ export default {
                                                         E - Payment
                                                     </label>
                                                 </div>
+                                               {{form.bank_transfer.epayment}}
                                             </div>
                                         </div>
                                         <div class="border border-dashed border-danger border-2 p-2 mb-3"
@@ -2144,6 +2160,7 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
+                                               {{form.bank_transfer.description}}
                                             </div>
                                             <div class="p-4 border" v-if="form.cod.status == true">
                                                 <div class="form-check">
@@ -2152,6 +2169,7 @@ export default {
                                                         COD
                                                     </label>
                                                 </div>
+                                               {{form.cod.description}}
                                             </div>
                                             <div class="p-4 border" v-if="form.epayment.status == true">
                                                 <div class="form-check">
