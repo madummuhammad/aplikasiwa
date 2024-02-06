@@ -35,7 +35,7 @@ class InventoryController extends Controller
             $item_product_id = null;
         }
 
-        if ($item_product_id == null or $item_product_id == 'null') {
+        if ($item_product_id == null OR $item_product_id == 'null') {
             $stock = Stock::whereIn('item_product_id', $item_product)->with('item_product.product', 'item_product.variation')->orderBy('created_at', 'DESC')->get();
         } else {
             $stock = Stock::where('item_product_id', $item_product_id)->with('item_product.product', 'item_product.variation')->orderBy('created_at', 'DESC')->get();

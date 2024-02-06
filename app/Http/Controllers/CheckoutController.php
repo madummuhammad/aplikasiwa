@@ -62,6 +62,7 @@ class CheckoutController extends Controller
             'summaryStatus'=>$checkoutData['summaryStatus'],
             'testimonials'=>$checkoutData['testimonials'],
             'fields'=>$checkoutData['fields'],
+            'olshop'=>$checkoutData['olshop'],
             'view'=>0,
             'success_page'=>$successData,
         ]);
@@ -122,6 +123,7 @@ class CheckoutController extends Controller
             'summaryStatus'=>$checkoutData['summaryStatus'],
             'testimonials'=>$checkoutData['testimonials'],
             'fields'=>$checkoutData['fields'],
+            'olshop'=>$checkoutData['olshop'],
             'success_page'=>$checkoutData['success_page'],
         ]);
 

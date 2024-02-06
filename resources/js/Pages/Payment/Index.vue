@@ -12,12 +12,12 @@ import Lottie from "@/Components/widgets/lottie.vue";
 import { Global } from '../../global'
 export default {
     props: {
-        payment:Object
+        payment: Object
     },
     setup(props) {
-        const global=Global();
+        const global = Global();
 
-        let paymentData=ref(props.payment)
+        let paymentData = ref(props.payment)
         // paymentData.value.forEach((item,index)=>{
         //             item.check==true
         //         })
@@ -48,9 +48,9 @@ export default {
                 const data = response.data;
 
                 // orders.value = data.data;
-                paymentData.value=data.data;
-                paymentData.value.forEach((item,index)=>{
-                    item.check==true
+                paymentData.value = data.data;
+                paymentData.value.forEach((item, index) => {
+                    item.check == true
                 })
                 console.log(paymentData.value)
                 console.log(data)
@@ -81,14 +81,14 @@ export default {
             }).then((result) => {
                 // console.log(result)
                 console.log(paymentData.value)
-                let postData={
-                    payment:paymentData.value.filter(item=>item.check===true)
+                let postData = {
+                    payment: paymentData.value.filter(item => item.check === true)
                 }
 
                 if (result.value) {
                     const deleteEndpoint = 'api/payment/destroy';
 
-                    axios.post(deleteEndpoint,postData)
+                    axios.post(deleteEndpoint, postData)
                         .then(response => {
                             console.log(response.data);
                             Swal.fire("Deleted!", "Your file has been deleted.", "success");
@@ -165,7 +165,7 @@ export default {
             this.setPages(newValue);
         },
         resultQuery() {
-            console.log('asa',this.paymentData)
+            console.log('asa', this.paymentData)
             console.log(this.displayedPosts)
             if (this.searchQuery) this.setPages(this.displayedPosts);
             else this.setPages(this.paymentData);
@@ -221,8 +221,8 @@ export default {
                             <BRow class="g-4">
                                 <BCol sm="auto" class="d-flex">
                                     <div>
-                                        <button class="btn btn-light btn-sm border border-2"
-                                            @click="destroy" v-if="isAnyItemChecked">Hapus
+                                        <button class="btn btn-light btn-sm border border-2" @click="destroy"
+                                            v-if="isAnyItemChecked">Hapus
                                         </button>
                                     </div>
                                 </BCol>
@@ -248,56 +248,61 @@ export default {
                                                         <input v-model="selectAll" @change="toggleSelectAll()"
                                                             class="form-check-input" type="checkbox" />
                                                     </th>
-                                                    <th  data-sort="product" @click="onSort('id')">Order ID</th>
-                                                    <th  data-sort="price" @click="onSort('price')">Nama Akun</th>
-                                                    <th  data-sort="price" @click="onSort('price')">Transfer Ke</th>
-                                                    <th  data-sort="price" @click="onSort('price')">Jumlah Transfer
+                                                    <th data-sort="product" @click="onSort('id')">Order ID</th>
+                                                    <th data-sort="price" @click="onSort('price')">Nama Akun</th>
+                                                    <th data-sort="price" @click="onSort('price')">Transfer Ke</th>
+                                                    <th data-sort="price" @click="onSort('price')">Jumlah Transfer
                                                     </th>
-                                                    <th  data-sort="price" @click="onSort('price')">Bukti Transfer
+                                                    <th data-sort="price" @click="onSort('price')">Bukti Transfer
                                                     </th>
-                                                    <th  data-sort="price" @click="onSort('price')">Diproses Oleh
+                                                    <th data-sort="price" @click="onSort('price')">Diproses Oleh
                                                     </th>
-                                                    <th  data-sort="price" @click="onSort('price')">Status
+                                                    <th data-sort="price" @click="onSort('price')">Status
                                                     </th>
-                                                    <th scope="col">Tindakan</th>
+                                                    <!-- <th scope="col">Tindakan</th> -->
                                                 </tr>
                                             </thead>
                                             <tbody class="list form-check-all">
-                                                <tr class="gridjs-tr" v-for="(item,index) in resultQuery">
+                                                <tr class="gridjs-tr" v-for="(item, index) in resultQuery">
                                                     <td data-column-id="stock" class="gridjs-td">
                                                         <input v-model="item.check" type="checkbox"
                                                             class="form-check-input" />
                                                     </td>
                                                     <td data-column-id="stock" class="gridjs-td">
-                                                     #{{item.payment_number}}
+                                                        #{{ item.payment_number }}
                                                     </td>
                                                     <td data-column-id="stock" class="gridjs-td">
-                                                        {{item.atas_nama}}
-                                                     
+                                                        {{ item.atas_nama }}
+
                                                     </td>
                                                     <td data-column-id="stock" class="gridjs-td">
-                                                     {{item.transfer_ke.bank}} - {{item.transfer_ke.atas_nama}} - {{item.transfer_ke.rekening}}
+                                                        {{ item.transfer_ke.bank }} - {{ item.transfer_ke.atas_nama }} -
+                                                        {{ item.transfer_ke.rekening }}
                                                     </td>
                                                     <td data-column-id="stock" class="gridjs-td">
-                                                     {{global.formatNumber(item.jumlah_transfer)}}
+                                                        {{ global.formatNumber(item.jumlah_transfer) }}
                                                     </td>
                                                     <td data-column-id="stock" class="gridjs-td">
-                                                        <a :href="item.bukti_transfer" target="_blank" rel="noopener noreferrer">
-                                                            <img style="width: 100px; height: 100px;" :src="item.bukti_transfer" alt="">
+                                                        <a :href="item.bukti_transfer" target="_blank"
+                                                            rel="noopener noreferrer">
+                                                            <img style="width: 100px; height: 100px;"
+                                                                :src="item.bukti_transfer" alt="">
                                                         </a>
                                                     </td>
                                                     <td data-column-id="stock" class="gridjs-td">
-                                                     <span v-if="item.processed_by && item.status=='paid'">{{ item.processed_by }}</span>
+                                                        <span v-if="item.processed_by && item.status == 'paid'">{{
+                                                            item.processed_by }}</span>
                                                     </td>
                                                     <td class="status">
-                                                        <span v-if="item.processed_by && item.status=='paid'">{{ item.status }}</span>
+                                                        <span v-if="item.processed_by && item.status == 'paid'">{{ item.status
+                                                        }}</span>
                                                         <span class="badge text-uppercase" :class="{
-                                                            'bg-success-subtle text-success': item.status== 'paid',
-                                                            'bg-info-subtle text-info': item.status== 'confirmed',
-                                                            'bg-danger-subtle text-danger': item.status== 'unpaid',
-                                                            }">{{ item.status}}</span>
+                                                                'bg-success-subtle text-success': item.status == 'paid',
+                                                                'bg-info-subtle text-info': item.status == 'confirmed',
+                                                                'bg-danger-subtle text-danger': item.status == 'unpaid',
+                                                            }">{{ item.status }}</span>
                                                     </td>
-                                                    <td>
+                                                    <!-- <td>
                                                         <BButtonGroup class="dropend"
                                                            >
                                                             <BDropdown text="Tindakan" dropend variant="secondary">
@@ -307,7 +312,7 @@ export default {
                                                                     class="cursor-pointer">Mark As Unpaid</BDropdownItem>
                                                             </BDropdown>
                                                         </BButtonGroup>
-                                                    </td>
+                                                    </td> -->
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -334,7 +339,6 @@ export default {
                         </BCardBody>
                     </BCard>
                 </div>
-            </BCol>
-        </BRow>
-    </Layout>
-</template>
+        </BCol>
+    </BRow>
+</Layout></template>

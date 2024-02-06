@@ -11,53 +11,54 @@ import animationData from "@/Components/widgets/msoeawqm.json";
 import Lottie from "@/Components/widgets/lottie.vue";
 import { Global } from '../../global'
 export default {
-    props:{
-        stock:Object,
-        allProduct:Object,
-        product:Object,
+    props: {
+        stock: Object,
+        allProduct: Object,
+        product: Object,
     },
     setup(props) {
-        console.log('props',props)
-        let stockData=ref(props.stock);
+        console.log('props', props)
+        let stockData = ref(props.stock);
 
-        let productData=ref(props.allProduct);
+        let productData = ref(props.allProduct);
 
-        let product=ref(props.product)
+        let product = ref(props.product)
 
-        console.log('product',product.value)
+        console.log('product', product.value)
 
-        let productOption=ref([]);
+        let productOption = ref([]);
 
-        var productSelected=ref(product.value.id);
+        var productSelected = ref(product.value.id);
 
-        let variationOption=ref([]);
-        var variationSelected=ref(null)
-        product.value.item_product.forEach((item,index)=>{
+        let variationOption = ref([]);
+        var variationSelected = ref(null)
+        product.value.item_product.forEach((item, index) => {
+            console.log('item', item)
 
-
-var label=item.variation.variation_name;
-
-if(item.variation.child_variation_name!==null){
-    label=label+'-'+item.variation.child_variation_name
-}
-variationOption.value[index]={
-    value:item.id,
-    label:label
-}
-})
+            if (item.variation) {
+                var label = item.variation.variation_name;
+                if (item.variation.child_variation_name !== null) {
+                    label = label + '-' + item.variation.child_variation_name
+                }
+            }
+            variationOption.value[index] = {
+                value: item.id,
+                label: label
+            }
+        })
         console.log(props)
 
-        let option=[]
-        productData.value.forEach((item,index)=>{
-            option[index]={
-                label:item.name,
-                value:item.id
+        let option = []
+        productData.value.forEach((item, index) => {
+            option[index] = {
+                label: item.name,
+                value: item.id
             }
         })
 
-        productOption.value=option;
+        productOption.value = option;
 
-        console.log('option',productOption.value)
+        console.log('option', productOption.value)
 
 
         const formatDate = (timestamp) => {
@@ -74,35 +75,36 @@ variationOption.value[index]={
             return date.toLocaleString('en-US', options);
         }
 
-        const getList=async ()=>{
+        const getList = async () => {
             console.log(productSelected.value)
-            axios.get('/api/inventory/list/'+productSelected.value+'?item_product_id='+variationSelected.value)
-            .then(response => {
-                console.log('Data berhasil dikirim ke backend:', response.data);
+            axios.get('/api/inventory/list/' + productSelected.value + '?item_product_id=' + variationSelected.value)
+                .then(response => {
+                    console.log('Data berhasil dikirim ke backend:', response.data);
 
-                let data=response.data;
-                stockData.value=data.data;
+                    let data = response.data;
+                    stockData.value = data.data;
 
-                product.value=data.product;
+                    product.value = data.product;
 
-                product.value.item_product.forEach((item,index)=>{
+                    product.value.item_product.forEach((item, index) => {
+                        if (item.variation) {
+                            var label = item.variation.variation_name;
+                            if (item.variation.child_variation_name !== null) {
+                                label = label + '-' + item.variation.child_variation_name
+                            }
+                        }
 
-                    var label=item.variation.variation_name;
+                        variationOption.value[index] = {
+                            value: item.id,
+                            label: label
+                        }
+                    })
 
-                    if(item.variation.child_variation_name!==null){
-                        label=label+'-'+item.variation.child_variation_name
-                    }
-                    variationOption.value[index]={
-                        value:item.id,
-                        label:label
-                    }
+                    console.log(stockData.value)
                 })
-
-                console.log(stockData.value)
-            })
-            .catch(error => {
-                console.error('Error saat mengirim data ke backend:', error);
-            });
+                .catch(error => {
+                    console.error('Error saat mengirim data ke backend:', error);
+                });
         }
         watch(() => productSelected, (newFields, oldFields) => {
             getList();
@@ -111,123 +113,123 @@ variationOption.value[index]={
             getList();
         }, { deep: true });
 
-        var addStockShow=ref(false)
+        var addStockShow = ref(false)
 
-        const openAddStockModal=()=>{
+        const openAddStockModal = () => {
 
-            addStockShow.value=true;
+            addStockShow.value = true;
             console.log(addStockShow.value)
         }
 
-        let stockIncrement=ref({
-            item_product_id:null,
-            stock:0,
-            note:null
+        let stockIncrement = ref({
+            item_product_id: null,
+            stock: 0,
+            note: null
         })
 
-        const addStock=async ()=>{
+        const addStock = async () => {
 
-            if(product.value.many_variation_status==false){
-                stockIncrement.value.item_product_id=product.value.item_product[0].id
+            if (product.value.many_variation_status == false) {
+                stockIncrement.value.item_product_id = product.value.item_product[0].id
             } else {
-                stockIncrement.value.item_product_id=variationSelected.value
+                stockIncrement.value.item_product_id = variationSelected.value
             }
 
-            axios.post('/api/inventory/add',stockIncrement.value)
-            .then(response => {
-                console.log('Data berhasil dikirim ke backend:', response.data);
+            axios.post('/api/inventory/add', stockIncrement.value)
+                .then(response => {
+                    console.log('Data berhasil dikirim ke backend:', response.data);
 
-                let data=response.data;
+                    let data = response.data;
 
-                if(data.status=='success'){
-                    getList();
-                    addStockShow.value=false;
-                }
+                    if (data.status == 'success') {
+                        getList();
+                        addStockShow.value = false;
+                    }
 
-            })
-            .catch(error => {
-                console.error('Error saat mengirim data ke backend:', error);
-            });
+                })
+                .catch(error => {
+                    console.error('Error saat mengirim data ke backend:', error);
+                });
         }
 
-        var reduceStockShow=ref(false)
+        var reduceStockShow = ref(false)
 
-        const openReduceStockModal=()=>{
+        const openReduceStockModal = () => {
 
-            reduceStockShow.value=true;
+            reduceStockShow.value = true;
             console.log(reduceStockShow.value)
         }
 
-        let stockDecrement=ref({
-            item_product_id:null,
-            stock:0,
-            note:null
+        let stockDecrement = ref({
+            item_product_id: null,
+            stock: 0,
+            note: null
         })
 
-        const reduceStock=async ()=>{
+        const reduceStock = async () => {
 
-            if(product.value.many_variation_status==false){
-                stockDecrement.value.item_product_id=product.value.item_product[0].id
+            if (product.value.many_variation_status == false) {
+                stockDecrement.value.item_product_id = product.value.item_product[0].id
             } else {
-                stockDecrement.value.item_product_id=variationSelected.value
+                stockDecrement.value.item_product_id = variationSelected.value
             }
 
-            axios.post('/api/inventory/reduce',stockDecrement.value)
-            .then(response => {
-                console.log('Data berhasil dikirim ke backend:', response.data);
+            axios.post('/api/inventory/reduce', stockDecrement.value)
+                .then(response => {
+                    console.log('Data berhasil dikirim ke backend:', response.data);
 
-                let data=response.data;
+                    let data = response.data;
 
-                if(data.status=='success'){
-                    getList();
-                    reduceStockShow.value=false;
-                }
+                    if (data.status == 'success') {
+                        getList();
+                        reduceStockShow.value = false;
+                    }
 
-            })
-            .catch(error => {
-                console.error('Error saat mengirim data ke backend:', error);
-            });
+                })
+                .catch(error => {
+                    console.error('Error saat mengirim data ke backend:', error);
+                });
         }
 
 
 
-        var adjustmentStockShow=ref(false)
+        var adjustmentStockShow = ref(false)
 
-        const openAdjustmentStockModal=()=>{
+        const openAdjustmentStockModal = () => {
 
-            adjustmentStockShow.value=true;
+            adjustmentStockShow.value = true;
             console.log(adjustmentStockShow.value)
         }
 
-        let stockAdjustment=ref({
-            item_product_id:null,
-            stock:0,
-            note:null
+        let stockAdjustment = ref({
+            item_product_id: null,
+            stock: 0,
+            note: null
         })
 
-        const adjustmentStock=async ()=>{
+        const adjustmentStock = async () => {
 
-            if(product.value.many_variation_status==false){
-                stockAdjustment.value.item_product_id=product.value.item_product[0].id
+            if (product.value.many_variation_status == false) {
+                stockAdjustment.value.item_product_id = product.value.item_product[0].id
             } else {
-                stockAdjustment.value.item_product_id=variationSelected.value
+                stockAdjustment.value.item_product_id = variationSelected.value
             }
 
-            axios.post('/api/inventory/adjustment',stockAdjustment.value)
-            .then(response => {
-                console.log('Data berhasil dikirim ke backend:', response.data);
+            axios.post('/api/inventory/adjustment', stockAdjustment.value)
+                .then(response => {
+                    console.log('Data berhasil dikirim ke backend:', response.data);
 
-                let data=response.data;
+                    let data = response.data;
 
-                if(data.status=='success'){
-                    getList();
-                    adjustmentStockShow.value=false;
-                }
+                    if (data.status == 'success') {
+                        getList();
+                        adjustmentStockShow.value = false;
+                    }
 
-            })
-            .catch(error => {
-                console.error('Error saat mengirim data ke backend:', error);
-            });
+                })
+                .catch(error => {
+                    console.error('Error saat mengirim data ke backend:', error);
+                });
         }
 
         return {
@@ -301,15 +303,13 @@ variationOption.value[index]={
         <div class="mb-3">
             <BRow class="mb-3">
                 <BCol lg="4">
-                    <Multiselect class="form-control cursor-pointer" v-model="productSelected"
-                    :close-on-select="true" placeholder="Pilih Produk" :searchable="false"
-                    :create-option="false" :options="productOption" />
+                    <Multiselect class="form-control cursor-pointer" v-model="productSelected" :close-on-select="true"
+                        placeholder="Pilih Produk" :searchable="false" :create-option="false" :options="productOption" />
 
                 </BCol>
-                <BCol lg="4" v-if="product.many_variation_status==true">
-                    <Multiselect class="form-control cursor-pointer" v-model="variationSelected"
-                    :close-on-select="true" placeholder="All Variation" :searchable="false"
-                    :create-option="false" :options="variationOption" />
+                <BCol lg="4" v-if="product.many_variation_status == true">
+                    <Multiselect class="form-control cursor-pointer" v-model="variationSelected" :close-on-select="true"
+                        placeholder="All Variation" :searchable="false" :create-option="false" :options="variationOption" />
 
                 </BCol>
             </BRow>
@@ -318,13 +318,16 @@ variationOption.value[index]={
             <BRow class="g-4">
                 <BCol sm="auto" class="d-flex">
                     <div class="me-2">
-                        <Button  @click="openAdjustmentStockModal" class="btn btn-sm btn-outline-primary"><i class="bx bx-edit-alt me-1"></i> Adjust Stock</Button>
+                        <Button @click="openAdjustmentStockModal" class="btn btn-sm btn-outline-primary"><i
+                                class="bx bx-edit-alt me-1"></i> Adjust Stock</Button>
                     </div>
                     <div class="me-2">
-                        <Button @click="openAddStockModal" class="btn btn-sm btn-outline-success"><i class="ri-add-line align-bottom me-1"></i> Add Stock</Button>
+                        <Button @click="openAddStockModal" class="btn btn-sm btn-outline-success"><i
+                                class="ri-add-line align-bottom me-1"></i> Add Stock</Button>
                     </div>
                     <div class="me-2">
-                        <Button  @click="openReduceStockModal" class="btn btn-sm btn-outline-danger"><i class="bx bx-minus me-1"></i> Reduce Stock</Button>
+                        <Button @click="openReduceStockModal" class="btn btn-sm btn-outline-danger"><i
+                                class="bx bx-minus me-1"></i> Reduce Stock</Button>
                     </div>
                 </BCol>
             </BRow>
@@ -343,10 +346,11 @@ variationOption.value[index]={
                                             <thead class="table-light">
                                                 <tr class="text-muted">
                                                     <th scope="col" style="width: 50px">
-                                                      No
+                                                        No
                                                     </th>
                                                     <th class="sort" data-sort="product" @click="onSort('id')">Name</th>
-                                                    <th class="sort" data-sort="price" @click="onSort('price')">Description</th>
+                                                    <th class="sort" data-sort="price" @click="onSort('price')">Description
+                                                    </th>
                                                     <th class="sort" data-sort="price" @click="onSort('price')">In</th>
                                                     <th class="sort" data-sort="price" @click="onSort('price')">Out
                                                     </th>
@@ -361,35 +365,41 @@ variationOption.value[index]={
                                             <tbody class="list form-check-all">
                                                 <tr class="gridjs-tr" v-for="(item, index) in stockData">
                                                     <td data-column-id="productListAllCheckbox" class="gridjs-td">
-                                                        {{ index+1 }}
+                                                        {{ index + 1 }}
                                                     </td>
                                                     <td data-column-id="stock" class="gridjs-td">
                                                         {{ item.item_product.product.name }}
                                                         <span v-if="item.item_product.product.many_variation_status">
                                                             <span>- {{ item.item_product.variation.variation_name }}</span>
-                                                            <span v-if="item.item_product.variation.child_variation_name">- {{ item.item_product.variation.child_variation_name }}</span>
+                                                            <span v-if="item.item_product.variation.child_variation_name">-
+                                                                {{ item.item_product.variation.child_variation_name
+                                                                }}</span>
                                                         </span>
                                                     </td>
                                                     <td data-column-id="stock" class="gridjs-td">
-                                                   {{ item.note }}
+                                                        {{ item.note }}
                                                     </td>
                                                     <td data-column-id="stock" class="gridjs-td">
-                                                      <span class="text-success fw-bold" v-if="item.stock_type=='Addition'">{{ item.qty }} <i class="bx bx-up-arrow"></i></span>
-                                                      <span v-else>-</span>
+                                                        <span class="text-success fw-bold"
+                                                            v-if="item.stock_type == 'Addition'">{{ item.qty }} <i
+                                                                class="bx bx-up-arrow"></i></span>
+                                                        <span v-else>-</span>
                                                     </td>
                                                     <td data-column-id="stock" class="gridjs-td">
-                                                        <span class="text-danger fw-bold" v-if="item.stock_type=='Deduction'">{{ item.qty }} <i class="bx bx-down-arrow"></i></span>
+                                                        <span class="text-danger fw-bold"
+                                                            v-if="item.stock_type == 'Deduction'">{{ item.qty }} <i
+                                                                class="bx bx-down-arrow"></i></span>
                                                         <span v-else>-</span>
 
                                                     </td>
                                                     <td data-column-id="stock" class="gridjs-td">
-                                                        {{item.stock}}
+                                                        {{ item.stock }}
                                                     </td>
                                                     <td data-column-id="stock" class="gridjs-td">
-                                                        {{item.by}}
+                                                        {{ item.by }}
                                                     </td>
                                                     <td data-column-id="action" class="gridjs-td">
-                                                        {{formatDate(item.created_at) }}
+                                                        {{ formatDate(item.created_at) }}
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -411,16 +421,17 @@ variationOption.value[index]={
                     </div>
                     <div class="col-6">
                         <label for="">Description</label>
-                        <textarea name="" v-model="stockIncrement.note" id="" class="form-control" cols="30" rows="4"></textarea>
+                        <textarea name="" v-model="stockIncrement.note" id="" class="form-control" cols="30"
+                            rows="4"></textarea>
                     </div>
                 </div>
                 <div class="d-flex justify-content-end mt-3">
                     <button class="btn btn-secondary" @click="addStock">SIMPAN</button>
                 </div>
             </div>
-</BModal>
+        </BModal>
 
-<BModal v-model="reduceStockShow" title="Reduce Stock" hide-footer>
+        <BModal v-model="reduceStockShow" title="Reduce Stock" hide-footer>
             <div class="card-body">
                 <div class="row">
                     <div class="col-6">
@@ -429,16 +440,17 @@ variationOption.value[index]={
                     </div>
                     <div class="col-6">
                         <label for="">Description</label>
-                        <textarea name="" v-model="stockDecrement.note" id="" class="form-control" cols="30" rows="4"></textarea>
+                        <textarea name="" v-model="stockDecrement.note" id="" class="form-control" cols="30"
+                            rows="4"></textarea>
                     </div>
                 </div>
                 <div class="d-flex justify-content-end mt-3">
                     <button class="btn btn-secondary" @click="reduceStock">SIMPAN</button>
                 </div>
             </div>
-</BModal>
+        </BModal>
 
-<BModal v-model="adjustmentStockShow" title="Adjustment Stock" hide-footer>
+        <BModal v-model="adjustmentStockShow" title="Adjustment Stock" hide-footer>
             <div class="card-body">
                 <div class="row">
                     <div class="col-6">
@@ -447,13 +459,14 @@ variationOption.value[index]={
                     </div>
                     <div class="col-6">
                         <label for="">Description</label>
-                        <textarea name="" v-model="stockAdjustment.note" id="" class="form-control" cols="30" rows="4"></textarea>
+                        <textarea name="" v-model="stockAdjustment.note" id="" class="form-control" cols="30"
+                            rows="4"></textarea>
                     </div>
                 </div>
                 <div class="d-flex justify-content-end mt-3">
                     <button class="btn btn-secondary" @click="adjustmentStock">SIMPAN</button>
                 </div>
             </div>
-</BModal>
+        </BModal>
     </Layout>
 </template>

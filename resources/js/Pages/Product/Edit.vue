@@ -39,18 +39,18 @@ export default {
         'form.collection': function (newVal) {
             console.log('form.collection berubah:', newVal);
         },
-        'form.url': async function(newVal){
+        'form.url': async function (newVal) {
             console.log(this.product);
             clearTimeout(this.debounceTimer);
             this.debounceTimer = setTimeout(async () => {
                 console.log(newVal);
-                const response = await axios.post('/api/products/check_url', { url: newVal,id:this.product.id });
+                const response = await axios.post('/api/products/check_url', { url: newVal, id: this.product.id });
 
-                let data=response.data;
+                let data = response.data;
                 console.log(response.data);
-                if(data.status=='error'){
-                    this.form.errors.url='URL Sudah Dipakai';
-                    console.log('form',this.form)
+                if (data.status == 'error') {
+                    this.form.errors.url = 'URL Sudah Dipakai';
+                    console.log('form', this.form)
                 }
             }, 500);
         }
@@ -148,7 +148,7 @@ export default {
             }
         });
 
-        
+
 
         onBeforeMount(() => {
             console.log(props.product)
@@ -1271,7 +1271,7 @@ export default {
                     <BCardBody>
                         <div class="row">
                             <div class="col-lg-12">
-                                <div class="mb-3" v-if="form.many_variation_status==false">
+                                <div class="mb-3" v-if="form.many_variation_status == false">
                                     <label class="form-label" for="product-price-input">Berat (gr)</label>
                                     <div class="has-validation mb-3">
                                         <input type="text" class="form-control" v-model="form.shipping.weight"
@@ -1526,7 +1526,7 @@ export default {
                                     <div class="border p-3" v-if="team.length !== 0">
                                         <div class="mb-3">
                                             <div class="border">
-                                                <div class="d-flex justify-content-between mb-3 p-2">
+                                                <!-- <div class="d-flex justify-content-between mb-3 p-2">
                                                     <div type="button" class="text-center w-100 py-2"
                                                         @click="changeRotatorRole('Customer Service')"
                                                         :class="{ 'border-bottom border-secondary': form.rotatorData.role == 'Customer Service' }">
@@ -1537,7 +1537,7 @@ export default {
                                                         @click="changeRotatorRole('Admin')">
                                                         Admin
                                                     </div>
-                                                </div>
+                                                </div> -->
                                                 <div class="p-2" v-if="form.rotatorData.role == 'Customer Service'">
                                                     <Multiselect v-model="form.rotatorData.team" class="form-control"
                                                         placeholder="Pilih Customer Service" mode="tags"
@@ -1683,7 +1683,7 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
-                                               {{form.bank_transfer.description}}
+                                                {{ form.bank_transfer.description }}
                                             </div>
                                             <div class="p-4 border" v-if="form.cod.status == true">
                                                 <div class="form-check">
@@ -1692,7 +1692,7 @@ export default {
                                                         COD
                                                     </label>
                                                 </div>
-                                               {{form.cod.description}}
+                                                {{ form.cod.description }}
                                             </div>
                                             <div class="p-4 border" v-if="form.epayment.status == true">
                                                 <div class="form-check">
@@ -1701,7 +1701,7 @@ export default {
                                                         E - Payment
                                                     </label>
                                                 </div>
-                                               {{form.bank_transfer.epayment}}
+                                                {{ form.bank_transfer.epayment }}
                                             </div>
                                         </div>
                                         <div class="border border-dashed border-danger border-2 p-2 mb-3"
@@ -1964,7 +1964,7 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
-                                               {{form.bank_transfer.description}}
+                                                {{ form.bank_transfer.description }}
                                             </div>
                                             <div class="p-4 border" v-if="form.cod.status == true">
                                                 <div class="form-check">
@@ -1973,7 +1973,7 @@ export default {
                                                         COD
                                                     </label>
                                                 </div>
-                                               {{form.cod.description}}
+                                                {{ form.cod.description }}
                                             </div>
                                             <div class="p-4 border" v-if="form.epayment.status == true">
                                                 <div class="form-check">
@@ -1982,7 +1982,7 @@ export default {
                                                         E - Payment
                                                     </label>
                                                 </div>
-                                               {{form.bank_transfer.epayment}}
+                                                {{ form.bank_transfer.epayment }}
                                             </div>
                                         </div>
                                         <div class="border border-dashed border-danger border-2 p-2 mb-3"
@@ -2160,7 +2160,7 @@ export default {
                                                         Bank Transfer
                                                     </label>
                                                 </div>
-                                               {{form.bank_transfer.description}}
+                                                {{ form.bank_transfer.description }}
                                             </div>
                                             <div class="p-4 border" v-if="form.cod.status == true">
                                                 <div class="form-check">
@@ -2169,7 +2169,7 @@ export default {
                                                         COD
                                                     </label>
                                                 </div>
-                                               {{form.cod.description}}
+                                                {{ form.cod.description }}
                                             </div>
                                             <div class="p-4 border" v-if="form.epayment.status == true">
                                                 <div class="form-check">

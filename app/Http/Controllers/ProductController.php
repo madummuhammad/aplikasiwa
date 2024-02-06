@@ -149,6 +149,7 @@ class ProductController extends Controller
             'summaryStatus' => $checkoutData['summaryStatus'],
             'testimonials' => $checkoutData['testimonials'],
             'fields' => $checkoutData['fields'],
+            'olshop'=>$checkoutData['olshop'],
             'view' => 0,
             'success_page' => $successData,
         ]);

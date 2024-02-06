@@ -7,6 +7,13 @@
     width: 20px;
     height: 20px;
 }
+
+.image-product {
+    width: 200px !important;
+    height: 200px !important;
+    object-fit: cover;
+    object-position: center;
+}
 </style>
 <script>
 import { Head, useForm, Link } from '@inertiajs/vue3';
@@ -128,6 +135,41 @@ export default {
                 const response = await axios.post('/api/products/upload', formData);
                 const data = response.data;
                 checkoutData.value.testimonials[index].image = data.data;
+                // checkoutData.value.header.image = data.data;
+
+            } catch (error) {
+                console.error('error', error);
+            }
+        }
+
+
+        const addOlshop = () => {
+            if (!checkoutData.value.olshop) {
+                checkoutData.value.olshop = []
+            }
+            checkoutData.value.olshop.push(
+                {
+                    image: null,
+                    name: '',
+                    message: ''
+                }
+            )
+
+            console.log(checkoutData.value.olshop)
+        }
+
+        const deleteOlshop = (index) => {
+            checkoutData.value.olshop.splice(index, 1);
+        }
+
+        const handleChangeOlshop = async (event, index) => {
+            try {
+                const file = event.target.files[0];
+                const formData = new FormData();
+                formData.append('image', file);
+                const response = await axios.post('/api/products/upload', formData);
+                const data = response.data;
+                checkoutData.value.olshop[index].image = data.data;
                 // checkoutData.value.header.image = data.data;
 
             } catch (error) {
@@ -475,6 +517,11 @@ export default {
             addTestimonials,
             handleChangeTestimonial,
             deleteTestimonial,
+
+            // Olshop
+            addOlshop,
+            handleChangeOlshop,
+            deleteOlshop,
 
             // Product Data
             productData,
@@ -888,7 +935,8 @@ export default {
                                         </div>
                                     </BModal>
                                 </div>
-                                <div class="alert alert-warning mt-2">Untuk menggunakan fitur perhitungan ongkir otomatis, harap aktifkan field Kecamatan</div>
+                                <div class="alert alert-warning mt-2">Untuk menggunakan fitur perhitungan ongkir otomatis,
+                                    harap aktifkan field Kecamatan</div>
                                 <BModal v-model="fieldCustomEdit" hide-footer title="Custom Field" size="lg"
                                     class="v-modal-custom">
                                     <div class="row">
@@ -1151,6 +1199,53 @@ export default {
                         </div>
                     </BCardBody>
                 </BCard>
+                <BCard no-body>
+                    <BCardHeader>
+                        <h5 class="card-title mb-0">Other Shop</h5>
+                    </BCardHeader>
+                    <BCardBody>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="mb-3">
+                                    <p>Tambahkan olshop lain untuk ditampilkan pada halaman checkout produk.</p>
+                                </div>
+                                <div class="mb-3" v-for="( item, index ) in    checkoutData.olshop" :key="index">
+                                    <div class="row">
+                                        <div class="col-4 d-flex align-items-center justify-content-center">
+                                            <div v-if="item.image">
+                                                <label :for="'olshop' + index" class="img-thumbnail cursor-pointer"
+                                                    style="width: 150px;">
+                                                    <img class="img-fluid w-100" :src="item.image" alt="">
+                                                </label>
+                                            </div>
+                                            <input type="file" hidden :id="'olshop' + index"
+                                                @change="handleChangeOlshop($event, index)">
+                                            <div v-if="!item.image">
+                                                <label :for="'olshop' + index"
+                                                    class="img-thumbnail d-flex align-items-center justify-content-center text-dark cursor-pointer"
+                                                    style="height:150px;width: 150px;">
+                                                    <i class="bx bx-image " style="font-size:80px"></i>
+                                                </label>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <input type="text" class="form-control mb-3" v-model="item.name">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end mt-2">
+                                        <button class="btn btn-danger" @click="deleteOlshop(index)">Hapus</button>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button class="btn btn-secondary" @click="addOlshop">
+                                        Tambahkan Toko Lain
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </BCardBody>
+                </BCard>
                 <div class="text-end mb-3">
                     <BButton type="button" variant="primary" class="w-sm" @click="pageMethod('success')">Selanjutnya
                     </BButton>
@@ -1315,8 +1410,9 @@ export default {
                                             <i class="bx bx-right-arrow-circle ms-2"></i></button>
                                     </div>
                                     <div class="col-5 bg-light p-2">
-                                        <div class="mb-3" v-if="checkoutData.productImageStatus == true">
-                                            <img class="img-fluid w-100" :src="tempProductImage" alt="">
+                                        <div class="mb-3  d-flex justify-content-center"
+                                            v-if="checkoutData.productImageStatus == true">
+                                            <img class="img-fluid w-100 image-product" :src="tempProductImage" alt="">
                                         </div>
                                         <div class="mb-3">{{ checkoutData.productDescription }}</div>
                                         <p class="fw-bold">{{ checkoutData.sectionTitle.points }}</p>
@@ -1383,6 +1479,25 @@ export default {
                                         <div class="col">
                                             <h5 class="mt-0 font-weight-bold text-white">{{ item.name }}</h5>
                                             <p class="text-white">{{ item.message }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container p-3" v-if="checkoutData.olshop && checkoutData.olshop.length > 0">
+                            <div class="row">
+                                <div class="col-12 col-lg-6" v-for="(item, index) in checkoutData.olshop" :key="index">
+                                    <div class="row align-items-center mb-3 p-2">
+                                        <div class="col-auto">
+                                            <div style="background:white">
+                                                <img v-if="item.image" :src="item.image" alt="" style="width:100px">
+                                                <div v-if="!item.image">
+                                                    <i class="bx bx-image " style="font-size:80px"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <h5 class="mt-0 font-weight-bold">{{ item.name }}</h5>
                                         </div>
                                     </div>
                                 </div>
@@ -1621,6 +1736,25 @@ export default {
                                 </div>
                             </div>
                         </div>
+                        <div class="container p-3" v-if="checkoutData.olshop && checkoutData.olshop.length > 0">
+                            <div class="row">
+                                <div class="col-12 col-lg-6" v-for="(item, index) in checkoutData.olshop" :key="index">
+                                    <div class="row align-items-center mb-3 p-2">
+                                        <div class="col-auto">
+                                            <div style="background:white">
+                                                <img v-if="item.image" :src="item.image" alt="" style="width:100px">
+                                                <div v-if="!item.image">
+                                                    <i class="bx bx-image " style="font-size:80px"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <h5 class="mt-0 font-weight-bold">{{ item.name }}</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </BCardBody>
                 </BCard>
 
@@ -1854,6 +1988,25 @@ export default {
                                 </div>
                             </div>
                         </div>
+                        <div class="container p-3" v-if="checkoutData.olshop && checkoutData.olshop.length > 0">
+                            <div class="row">
+                                <div class="col-12 col-lg-6" v-for="(item, index) in checkoutData.olshop" :key="index">
+                                    <div class="row align-items-center mb-3 p-2">
+                                        <div class="col-auto">
+                                            <div style="background:white">
+                                                <img v-if="item.image" :src="item.image" alt="" style="width:100px">
+                                                <div v-if="!item.image">
+                                                    <i class="bx bx-image " style="font-size:80px"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <h5 class="mt-0 font-weight-bold">{{ item.name }}</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </BCardBody>
                 </BCard>
             </BCol>
@@ -1950,7 +2103,8 @@ export default {
                                     <div class="mb-3">
                                         <div class="d-flex justify-content-between">
                                             <label for="choices-publish-status-input" class="form-label">Akun Bank</label>
-                                            <Link href="/profile?page=payment" class="cursor-pointer text-secondary fw-bold">+ Tambah No. Rekening</Link>
+                                            <Link href="/profile?page=payment"
+                                                class="cursor-pointer text-secondary fw-bold">+ Tambah No. Rekening</Link>
                                             <BModal v-model="accountBankShow" hide-footer title="Informasi  Bank" size="lg"
                                                 class="v-modal-custom">
                                                 <div class="row">
